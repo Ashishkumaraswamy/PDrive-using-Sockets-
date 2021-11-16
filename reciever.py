@@ -16,8 +16,11 @@ def title_page(): #TITLE PAGE UI
     print("\n\t\t*******FILE SHARING APPICATION********")
     print("\n\n\tFile Sharing application that lets you upload your files onto a server from your local storage,\n and also allows you to download others file from the server.\n\n")
 
+def help_command():
+    print("\n\t\t\t\tUse \"HELP\" command to get the list of commands available")
+
 def new_user_ques():  #NEW USER INPUT
-    print("\n\tAre you a new user or an existing user?(y/n): ")
+    print("\n\t\tAre you a new user or an existing user?(y/n): ")
     msg=input()
     return msg
 
@@ -78,16 +81,17 @@ def main():
     authentication(client)
     title_page()
     while True:
-        data = client.recv(SIZE).decode(FORMAT)
-        cmd, msg = data.split("@")
-
+        try:
+            client.settimeout(5.0)
+            data = client.recv(SIZE).decode(FORMAT)
+            cmd, msg = data.split("@")
+        except:
+            client.settimeout(None)
         if cmd == "DISCONNECTED":
             print(f"[SERVER]: {msg}")
             break
         elif cmd == "OK":
-            if msg!="":
-                print(f"{msg}")
-
+            print(f"{msg}")
         data = input("> ")
         data = data.split(" ")
         cmd = data[0]
@@ -104,14 +108,14 @@ def main():
         elif cmd == "UPLOAD":
             path = data[1]
             f=open(path,"rb")
+            filename = path.split("/")[-1]
+            send_data = f"{cmd}@{filename}"
+            client.send(send_data.encode(FORMAT))
             datas=f.read(SIZE)
             while datas:
                 client.send(datas)
                 datas=f.read(SIZE)      
-            f.close()        
-            filename = path.split("/")[-1]
-            send_data = f"{cmd}@{filename}"
-            client.send(send_data.encode(FORMAT))
+            f.close()    
         elif cmd == "DOWNLOAD":
             client.send(cmd.encode(FORMAT))
             listdir=client.recv(SIZE).decode(FORMAT)
@@ -139,7 +143,12 @@ def main():
                     datas=client.recv(SIZE)
                     while datas:
                         f.write(datas)
-                        datas=client.recv(SIZE)
+                        try:
+                            client.settimeout(2.0)
+                            datas=client.recv(SIZE)  
+                        except:
+                            client.settimeout(None)
+                            break
                     f.close()
                     print("File Downloaded Successfully")
 

@@ -29,7 +29,6 @@ def handle_client(conn, addr):
         data = conn.recv(SIZE).decode(FORMAT)
         data = data.split("@")
         cmd = data[0]
-
         if cmd == "LIST":
             send_data=listdir()
             conn.send(send_data.encode(FORMAT))
@@ -41,11 +40,17 @@ def handle_client(conn, addr):
                 os.listdir(SERVER_DATA_PATH+"\\"+username)
             except:
                 os.mkdir(SERVER_DATA_PATH+"\\"+username)
+            filepath=SERVER_DATA_PATH+"\\"+username+"\\"+name
             f=open(filepath, "wb")
-            datas=client.recv(SIZE)
+            datas=conn.recv(SIZE)
             while datas:
                 f.write(datas)
-                datas=client.recv(SIZE)
+                try:
+                    conn.settimeout(2.0)
+                    datas=conn.recv(SIZE)  
+                except:
+                    conn.settimeout(None)
+                    break
             f.close()
             send_data = "OK@File uploaded successfully."
             conn.send(send_data.encode(FORMAT))
@@ -88,13 +93,13 @@ def handle_client(conn, addr):
                 path=SERVER_DATA_PATH+'\\'+user_dir+'\\'+user_file
                 try:
                     f=open(path,"rb")
+                    filename = path.split("/")[-1]
+                    send_data = f"{filename}"
+                    conn.send(send_data.encode(FORMAT))
                     datas=f.read(SIZE)
                     while datas:
                         conn.send(datas)
                         datas=f.read(SIZE)
-                    filename = path.split("/")[-1]
-                    send_data = f"{filename}"
-                    conn.send(send_data.encode(FORMAT))
                     conn.send("OK@ ".encode(FORMAT))
                 except:
                     conn.send("File Does Not Exist under this name".encode(FORMAT))
