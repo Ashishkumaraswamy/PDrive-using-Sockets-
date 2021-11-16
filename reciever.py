@@ -2,6 +2,8 @@
 import socket
 import os
 from os import system
+from getpass import getpass
+
 import time
 #----------------------------------------------------------
 IP = socket.gethostbyname(socket.gethostname())
@@ -24,7 +26,10 @@ def new_user_ques():  #NEW USER INPUT
 def retry_password(client):  #RETRY PASSWORD FOR AUTHENTICATION
     while True:
         msg=client.recv(SIZE).decode(FORMAT)
-        passw=input("\n\t"+msg)
+        username=input("\n\t"+msg)
+        client.send(username.encode(FORMAT))
+        msg=client.recv(SIZE).decode(FORMAT)
+        passw=getpass("\n\t"+msg)
         client.send(passw.encode(FORMAT))
         msg=client.recv(SIZE).decode(FORMAT)
         if "Access" in msg:
@@ -44,7 +49,7 @@ def authentication(client):  #AUTHENTICATION OF USER
         username=input('\t'+msg)
         client.send(username.encode(FORMAT))
         msg=client.recv(SIZE).decode(FORMAT)
-        password=input('\t'+msg)
+        password=getpass('\t'+msg)
         client.send(password.encode(FORMAT))
         msg=client.recv(SIZE).decode(FORMAT)
         title_page()
@@ -57,7 +62,7 @@ def authentication(client):  #AUTHENTICATION OF USER
         username=input('\t'+msg)
         client.send(username.encode(FORMAT))
         msg=client.recv(SIZE).decode(FORMAT)
-        password=input('\t'+msg)
+        password=getpass('\t'+msg)
         client.send(password.encode(FORMAT))
         msg=client.recv(SIZE).decode(FORMAT)
         if "Access" in msg:
