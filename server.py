@@ -35,14 +35,18 @@ def handle_client(conn, addr):
             conn.send(send_data.encode(FORMAT))
 
         elif cmd == "UPLOAD":
-            name, text = data[1], data[2]
+            name=data[1]
             filepath = os.path.join(SERVER_DATA_PATH,username, name)
             try:
                 os.listdir(SERVER_DATA_PATH+"\\"+username)
             except:
                 os.mkdir(SERVER_DATA_PATH+"\\"+username)
-            with open(filepath, "w") as f:
-                f.write(text)
+            f=open(filepath, "wb")
+            datas=client.recv(SIZE)
+            while datas:
+                f.write(datas)
+                datas=client.recv(SIZE)
+            f.close()
             send_data = "OK@File uploaded successfully."
             conn.send(send_data.encode(FORMAT))
 
@@ -60,7 +64,6 @@ def handle_client(conn, addr):
                     send_data += "File deleted successfully."
                 else:
                     send_data += "File not found."
-
             conn.send(send_data.encode(FORMAT))
 
         elif cmd == "LOGOUT":
@@ -84,8 +87,11 @@ def handle_client(conn, addr):
                 user_file=conn.recv(SIZE).decode(FORMAT)
                 path=SERVER_DATA_PATH+'\\'+user_dir+'\\'+user_file
                 try:
-                    with open(path, "r") as f:
-                        text = f.read()
+                    f=open(path,"rb")
+                    datas=f.read(SIZE)
+                    while datas:
+                        conn.send(datas)
+                        datas=f.read(SIZE)
                     filename = path.split("/")[-1]
                     send_data = f"{filename}"
                     conn.send(send_data.encode(FORMAT))
@@ -117,7 +123,7 @@ def retry_password(conn,username,password):
             conn.send("Invalid Password: ".encode(FORMAT))
 
 def authentication_of_user(conn):
-    conn.send("Are you a new user or an existing user?(y/n): ".encode(FORMAT))
+    conn.send("Are you a new user ?(y/n): ".encode(FORMAT))
     new_user_check=conn.recv(SIZE).decode(FORMAT)
     username=""
     if new_user_check=='y':
@@ -125,8 +131,8 @@ def authentication_of_user(conn):
         username=conn.recv(1024).decode(FORMAT)
         conn.send("Password:".encode(FORMAT))
         password=conn.recv(1024).decode(FORMAT)
-        f=open('password_file\password_file.txt','w+')
-        text=username+" "+password
+        f=open('password_file\password_file.txt','a')
+        text=username+" "+password+"\n"
         f.write(text)
         f.close()
         conn.send("From Server: Access Granted .....LOADING.....".encode(FORMAT))

@@ -79,7 +79,6 @@ def main():
     title_page()
     while True:
         data = client.recv(SIZE).decode(FORMAT)
-        print(data)
         cmd, msg = data.split("@")
 
         if cmd == "DISCONNECTED":
@@ -104,12 +103,14 @@ def main():
             client.send(f"{cmd}@{data[1]}".encode(FORMAT))
         elif cmd == "UPLOAD":
             path = data[1]
-
-            with open(f"{path}", "r") as f:
-                text = f.read()
-
+            f=open(path,"rb")
+            datas=f.read(SIZE)
+            while datas:
+                client.send(datas)
+                datas=f.read(SIZE)      
+            f.close()        
             filename = path.split("/")[-1]
-            send_data = f"{cmd}@{filename}@{text}"
+            send_data = f"{cmd}@{filename}"
             client.send(send_data.encode(FORMAT))
         elif cmd == "DOWNLOAD":
             client.send(cmd.encode(FORMAT))
@@ -134,8 +135,12 @@ def main():
                     print("\n\t",file)
                 else:
                     filepath = os.path.join(CLIENT_PATH, user_file)
-                    with open(filepath, "w") as f:
-                        f.write(file)
+                    f=open(filepath, "wb")
+                    datas=client.recv(SIZE)
+                    while datas:
+                        f.write(datas)
+                        datas=client.recv(SIZE)
+                    f.close()
                     print("File Downloaded Successfully")
 
     print("Disconnected from the server.")
