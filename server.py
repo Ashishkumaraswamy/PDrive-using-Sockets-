@@ -2,6 +2,7 @@
 import os
 import socket
 import threading
+from getpass import getpass
 import time
 #----------------------------------------------------------
 IP = socket.gethostbyname(socket.gethostname())
@@ -142,22 +143,28 @@ def authentication_of_user(conn):
         f.close()
         conn.send("From Server: Access Granted .....LOADING.....".encode(FORMAT))
     else:
-        conn.send("Username:".encode(FORMAT))
-        username=conn.recv(1024).decode(FORMAT)
-        conn.send("Password:".encode(FORMAT))
-        password=conn.recv(1024).decode(FORMAT)
-        with open('password_file\password_file.txt','r') as f:
-            lines=f.readline()
-            usernamef=lines.split()[0]
-            passwordf=lines.split()[1]
-            if username==usernamef:
-                if password==passwordf:
-                    conn.send("From Server: Access Granted .....LOADING.....".encode(FORMAT))
-                else:
-                    conn.send("Invalid Password".encode(FORMAT))
-                    retry_password(conn,username,passwordf)
-                    conn.send("From Server: Access Granted .....LOADING.....".encode(FORMAT))
-    return username
+        while True:
+            conn.send("Username:".encode(FORMAT))
+            username=conn.recv(1024).decode(FORMAT)
+            conn.send("Password:".encode(FORMAT))
+            password=conn.recv(1024).decode(FORMAT)
+            f = open('password_file\password_file.txt','r')
+            datas = f.readlines()
+            for temp in datas:
+                lines= str(temp)
+                print(lines)
+                usernamef=lines.split()[0]
+                passwordf=lines.split()[1]
+                print(usernamef,passwordf)
+                if username==usernamef:
+                    if password==passwordf:
+                        conn.send("From Server: Access Granted .....LOADING.....".encode(FORMAT))
+                        return username
+                    
+            conn.send("Invalid username or password Try again!!".encode(FORMAT))
+
+        
+
 
 def main():
     print("[STARTING] Server is starting")
