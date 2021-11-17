@@ -109,10 +109,11 @@ def handle_client(conn, addr):
         elif cmd == "HELP":
             data = "OK@"
             data += "LIST: List all the files from the server.\n"
-            data += "UPLOAD <path>: Upload a file to the server.\n"
+            data += "UPLOAD <filename>: Upload a file to the server.\n"
             data += "DELETE <filename>: Delete a file from the server.\n"
             data += "LOGOUT: Disconnect from the server.\n"
             data += "HELP: List all the commands."
+            data += "DOWNLOAD:  Download files from the chosen directory"
 
             conn.send(data.encode(FORMAT))
 

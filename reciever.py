@@ -3,9 +3,8 @@ import socket
 import os
 from os import system
 from getpass import getpass
-import time
 from tqdm import tqdm
-
+import time
 #----------------------------------------------------------
 IP = socket.gethostbyname(socket.gethostname())
 PORT = 4456
@@ -17,7 +16,8 @@ CLIENT_PATH="client_data"
 def title_page(): #TITLE PAGE UI
     system("cls")
     print("\n\t\t*******FILE SHARING APPICATION********")
-    print("\n\n\tFile Sharing application that lets you upload your files onto a server from your local storage,\n and also allows you to download others file from the server.\n\n")
+    print("\n\n\tFile Sharing application that lets you upload your files onto a server from your local storage,\n and also allows you to download others file from the server.\n")
+    print("\n\t\t\tUse \"HELP\" command to get the list of commands available\n")
 
 def help_command():
     print("\n\t\t\t\tUse \"HELP\" command to get the list of commands available")
@@ -101,7 +101,7 @@ def main():
         data = input("> ")
         data = data.split(" ")
         cmd = data[0]
-
+        cmd=cmd.upper()
         if cmd == "HELP":
             client.send(cmd.encode(FORMAT))
         elif cmd == "LOGOUT":
@@ -128,21 +128,30 @@ def main():
             system("cls")
             title_page()
             print("\n\t List Of Directories Availbale:")
-            print("\n\t  ",listdir)
+            dirlist=listdir.split('\n')
+            for i in dirlist:
+                print("\t\t--> ",i)
             user_dir=input("\n\tEnter the directory you want to download from:")
             client.send(user_dir.encode(FORMAT))
             listfiles=client.recv(SIZE).decode(FORMAT)
+            listfiles=listfiles.split('@')[1]
+            system("cls")
+            title_page()
             if "empty" in listfiles:
                 print("\n\t",listfiles)
                 time.sleep(3)
                 continue
             else: 
-                print("\n\t",listfiles)
+                print("\t\t-> ",user_dir)
+                listfiles=listfiles.split('\n')
+                for i in listfiles:
+                    print("\t\t  ->",i)
                 user_file=input("Enter the file you wish to download: ")
                 client.send(user_file.encode(FORMAT))
                 file=client.recv(SIZE).decode(FORMAT)
                 if "Not Exist" in file:
                     print("\n\t",file)
+                    time.sleep(0.5)
                 else:
                     filepath = os.path.join(CLIENT_PATH, user_file)
                     f=open(filepath, "wb")
@@ -157,14 +166,15 @@ def main():
                             break
                     f.close()
                     print("File Downloaded Successfully")
+                time.sleep(0.5)
+                system("cls")
+                title_page()
 
     print("Disconnected from the server.")
     client.close()
 
 if __name__ == "__main__":
-      
     for i in tqdm (range (3), desc="Loading..."):
         time.sleep(0.5)
-
     title_page()
     main()
