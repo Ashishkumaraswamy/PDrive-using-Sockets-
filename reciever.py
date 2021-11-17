@@ -3,8 +3,9 @@ import socket
 import os
 from os import system
 from getpass import getpass
-
 import time
+from tqdm import tqdm
+
 #----------------------------------------------------------
 IP = socket.gethostbyname(socket.gethostname())
 PORT = 4456
@@ -161,5 +162,9 @@ def main():
     client.close()
 
 if __name__ == "__main__":
+      
+    for i in tqdm (range (3), desc="Loading..."):
+        time.sleep(0.5)
+
     title_page()
     main()
