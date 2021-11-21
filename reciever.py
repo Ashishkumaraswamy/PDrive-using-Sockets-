@@ -109,6 +109,8 @@ def main():
             break
         elif cmd == "LIST":
             client.send(cmd.encode(FORMAT))
+            output =client.recv(SIZE).decode(FORMAT)
+            print(output)
         elif cmd == "DELETE":
             client.send(f"{cmd}@{data[1]}".encode(FORMAT))
         elif cmd == "UPLOAD":

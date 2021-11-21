@@ -31,8 +31,23 @@ def handle_client(conn, addr):
         data = data.split("@")
         cmd = data[0]
         if cmd == "LIST":
-            send_data=listdir()
+            files = os.listdir(SERVER_DATA_PATH)
+            send_data=""
+            if len(files) == 0:
+                send_data += "The server directory is empty"
+            else:
+                files.sort()
+                for i in range(len(files)):
+                    send_data += "\n\t-> "+files[i]+"\n\n"
+                    Temp = os.listdir(SERVER_DATA_PATH+"\\"+files[i])
+                    Temp.sort()
+                    for j in Temp:
+                        send_data += "\t\t--> "
+                        send_data += str(j) +"\n"
             conn.send(send_data.encode(FORMAT))
+
+            # send_data=listdir()
+            # conn.send(send_data.encode(FORMAT))
 
         elif cmd == "UPLOAD":
             name=data[1]
@@ -153,7 +168,6 @@ def authentication_of_user(conn):
             datas = f.readlines()
             for temp in datas:
                 lines= str(temp)
-                print(lines)
                 usernamef=lines.split()[0]
                 passwordf=lines.split()[1]
                 print(usernamef,passwordf)
