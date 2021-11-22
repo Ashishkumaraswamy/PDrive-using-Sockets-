@@ -8,11 +8,12 @@ import time
 IP = socket.gethostbyname(socket.gethostname())
 PORT = 4456
 ADDR = (IP, PORT)
+print(ADDR)
 SIZE = 1024
 FORMAT = "utf-8"
 SERVER_DATA_PATH = "server_data"
 
-def listdir(path=""): #FUNCTION TO LIST THE DIRECTORIES IN THE SERVER DIRECTORY
+def listdir(path=""):
     send_data="OK@"
     files = os.listdir(SERVER_DATA_PATH+"\\"+path)
     if len(files) == 0:
@@ -62,7 +63,7 @@ def handle_client(conn, addr):
             while datas:
                 f.write(datas)
                 try:
-                    conn.settimeout(2.0)
+                    conn.settimeout(1.0)
                     datas=conn.recv(SIZE)  
                 except:
                     conn.settimeout(None)
@@ -127,7 +128,7 @@ def handle_client(conn, addr):
             data += "UPLOAD <filename>: Upload a file to the server.\n"
             data += "DELETE <filename>: Delete a file from the server.\n"
             data += "LOGOUT: Disconnect from the server.\n"
-            data += "HELP: List all the commands."
+            data += "HELP: List all the commands.\n"
             data += "DOWNLOAD:  Download files from the chosen directory"
 
             conn.send(data.encode(FORMAT))
@@ -158,6 +159,7 @@ def authentication_of_user(conn):
         f.write(text)
         f.close()
         conn.send("From Server: Access Granted .....LOADING.....".encode(FORMAT))
+        return username
     else:
         while True:
             conn.send("Username:".encode(FORMAT))
@@ -177,9 +179,6 @@ def authentication_of_user(conn):
                         return username
                     
             conn.send("Invalid username or password Try again!!".encode(FORMAT))
-
-        
-
 
 def main():
     print("[STARTING] Server is starting")

@@ -1,1 +1,1 @@
-LIST
+UPLOAD@file.txt

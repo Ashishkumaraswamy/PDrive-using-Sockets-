@@ -13,7 +13,7 @@ FORMAT = "utf-8"
 SIZE = 1024
 CLIENT_PATH="client_data"
 
-def title_page(): #TITLE PAGE UI
+def title_page():
     system("cls")
     print("\n\t\t*******FILE SHARING APPICATION********")
     print("\n\n\tFile Sharing application that lets you upload your files onto a server from your local storage,\n and also allows you to download others file from the server.\n")
@@ -22,12 +22,12 @@ def title_page(): #TITLE PAGE UI
 def help_command():
     print("\n\t\t\t\tUse \"HELP\" command to get the list of commands available")
 
-def new_user_ques():  #NEW USER INPUT
+def new_user_ques(): 
     print("\n\t\tAre you a new user or an existing user?(y/n): ")
     msg=input()
     return msg
 
-def retry_password(client):  #RETRY PASSWORD FOR AUTHENTICATION
+def retry_password(client):
     while True:
         msg=client.recv(SIZE).decode(FORMAT)
         username=input("\n\t"+msg)
@@ -116,7 +116,7 @@ def main():
         elif cmd == "UPLOAD":
             path = data[1]
             f=open(path,"rb")
-            filename = path.split("/")[-1]
+            filename = path
             send_data = f"{cmd}@{filename}"
             client.send(send_data.encode(FORMAT))
             datas=f.read(SIZE)
